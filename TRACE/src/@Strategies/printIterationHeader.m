@@ -6,6 +6,8 @@
 function printIterationHeader(S,reporter)
 
 % Print iteration header
-S.direction_computation_.printIterationHeader(reporter);
+S.subproblemSolver.printIterationHeader(reporter);
+S.stepComputation.printIterationHeader(reporter);
+S.acceptabilityCheck.printIterationHeader(reporter);
 
 end % printIterationHeader

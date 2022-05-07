@@ -5,17 +5,23 @@
 % TRACE: optimize
 function optimize(T,problem)
 
+% Initialize status
+T.status = Enumerations.S_UNSET;
+
 % Get options
 T.getOptions;
 
 % Initialize quantities
-T.quantities_.initialize(problem);
+T.quantities.initialize(problem);
 
 % Scale problem
-T.quantities_.currentIterate.determineScaleFactors(T.quantities_);
+T.quantities.currentIterate.determineScaleFactors(T.quantities);
+
+% Store initial stationarity
+T.quantities.initializeParameters;
 
 % Initialize strategies
-T.strategies_.initialize(T.options_,T.quantities_,T.reporter_);
+T.strategies.initialize(T.options,T.quantities,T.reporter);
 
 % Print header
 T.printHeader(problem);
@@ -27,48 +33,52 @@ while true
   T.printIterationHeader;
   
   % Print iteration quantities
-  T.quantities_.printIterationValues(T.reporter_);
+  T.quantities.printIterationValues(T.reporter);
   
   % Check for termination of best iterate
-  if T.quantities_.stationaritySatisfied, T.status_ = Enumerations.S_SUCCESS; break; end
+  if T.quantities.stationaritySatisfied, T.status = Enumerations.S_SUCCESS; break; end
 
   % Check for CPU time termination
-  if T.quantities_.limitExceededCPU, T.status_ = Enumerations.S_CPU_TIME_LIMIT; break; end
+  if T.quantities.limitExceededCPU, T.status = Enumerations.S_CPU_TIME_LIMIT; break; end
   
   % Check for termination on problem size limit
-  if T.quantities_.limitExceededSize, T.status_ = Enumerations.S_SIZE_LIMIT; break; end
+  if T.quantities.limitExceededSize, T.status = Enumerations.S_SIZE_LIMIT; break; end
   
   % Check for termination on iteration limit
-  if T.quantities_.limitExceededIterations, T.status_ = Enumerations.S_ITERATION_LIMIT; break; end
+  if T.quantities.limitExceededIterations, T.status = Enumerations.S_ITERATION_LIMIT; break; end
   
   % Check for termination on evaluation limit
-  if T.quantities_.limitExceededEvaluations, T.status_ = Enumerations.S_EVALUATION_LIMIT; break; end
+  if T.quantities.limitExceededEvaluations, T.status = Enumerations.S_EVALUATION_LIMIT; break; end
   
   % Check whether to check derivatives
-  if T.quantities_.checkDerivatives, T.quantities_.currentIterate.checkDerivatives(T.quantities_); end
+  if T.quantities.checkDerivatives, T.quantities.currentIterate.checkDerivatives(T.quantities); end
   
-  % Compute search direction (sets direction)
-  err = T.strategies_.directionComputation.computeDirection(T.options_,T.quantities_,T.reporter_,T.strategies_);
+  % Compute step
+  err = T.strategies.stepComputation.computeStep(T.options,T.quantities,T.reporter,T.strategies);
   
   % Check for error
-  if err == true, T.status_ = Enumerations.S_DIRECTION_COMPUTATION_FAILURE; break; end
+  if err == true, T.status = Enumerations.S_STEP_COMPUTATION_FAILURE; break; end
   
-  % Print direction computation values
-  T.strategies_.directionComputation.printIterationValues(T.quantities_,T.reporter_);
+  % Print subproblem solve and step computation values
+  T.strategies.subproblemSolver.printIterationValues(T.quantities,T.reporter);
+  T.strategies.stepComputation.printIterationValues(T.quantities,T.reporter);
   
-  % Update current iterate to trial iterate
-  T.quantities_.updateIterate;
+  % Check acceptability
+  err = T.strategies.acceptabilityCheck.checkAcceptability(T.options,T.quantities,T.reporter,T.strategies);
   
-  % Increment iteration counter
-  T.quantities_.incrementIterationCounter;
+  % Check for error
+  if err == true, T.status = Enumerations.S_ACCEPTABILITY_CHECK_FAILURE; break; end
+  
+  % Print acceptability check values
+  T.strategies.acceptabilityCheck.printIterationValues(T.quantities,T.reporter);
   
   % Print new line
-  T.reporter_.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,'\n');
+  T.reporter.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,'\n');
   
 end % main loop
 
 % Print new line
-T.reporter_.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,'\n');
+T.reporter.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,'\n');
 
 % Print footer
 T.printFooter;

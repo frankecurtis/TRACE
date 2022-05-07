@@ -6,18 +6,40 @@
 function getOptions(S,options,reporter)
 
 % Get strategies options
-direction_computation_name = options.getOption(reporter,'direction_computation');
+acceptability_check_name = options.getOption(reporter,'acceptability_check');
+step_computation_name = options.getOption(reporter,'step_computation');
+subproblem_solver_name = options.getOption(reporter,'subproblem_solver');
 
-% Switch on direction computation names
-switch direction_computation_name
-  case 'TrustRegion'
-    S.direction_computation_ = DirectionComputationTrustRegion;
-  %case ???
+% Switch on acceptability check names
+switch acceptability_check_name
+  case 'Ratio'
+    S.acceptabilityCheck = AcceptabilityCheckRatio;
+  %case ...
   otherwise
-    S.direction_computation_ = DirectionComputationTrustRegion;
+    S.acceptabilityCheck = AcceptabilityCheckRatio;
+end
+
+% Switch on step computation names
+switch step_computation_name
+  case 'TrustRegion'
+    S.stepComputation = StepComputationTrustRegion;
+  %case ...
+  otherwise
+    S.stepComputation = StepComputationTrustRegion;
+end
+
+% Switch on subproblem solver names
+switch subproblem_solver_name
+  case 'MoreSorensen'
+    S.subproblemSolver = SubproblemSolverMoreSorensen;
+  %case ...
+  otherwise
+    S.subproblemSolver = SubproblemSolverMoreSorensen;
 end
 
 % Get options
-S.direction_computation_.getOptions(options,reporter);
+S.acceptabilityCheck.getOptions(options,reporter);
+S.stepComputation.getOptions(options,reporter);
+S.subproblemSolver.getOptions(options,reporter);
 
 end % getOptions

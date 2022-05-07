@@ -2,8 +2,8 @@
 %
 % All Rights Reserved.
 
-% Strategy class
-classdef (Abstract) Strategy < handle
+% SubproblemSolver class
+classdef (Abstract) SubproblemSolver < Strategy
 
   % Properties (abstract, constant)
   properties (Abstract, Constant)
@@ -35,6 +35,9 @@ classdef (Abstract) Strategy < handle
     % Initialize
     initialize(S,options,quantities,reporter)
     
+    % Solve subproblem
+    solveSubproblem(S,options,quantities,reporter,strategies)
+    
   end % methods (abstract)
   
-end % Strategy
+end % SubproblemSolver

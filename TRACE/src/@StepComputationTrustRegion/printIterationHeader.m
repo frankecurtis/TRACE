@@ -2,8 +2,8 @@
 %
 % All Rights Reserved.
 
-% DirectionComputationTrustRegion: printIterationHeader
-function printIterationHeader(D,reporter)
+% StepComputationTrustRegion: printIterationHeader
+function printIterationHeader(S,reporter)
 
 % Print iteration header
 %reporter.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,...

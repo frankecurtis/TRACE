@@ -25,19 +25,16 @@
 % TRACE class
 classdef TRACE < handle
   
-  % Properties (private access)
-  properties (SetAccess = private, GetAccess = private)
+  % Properties (private set access)
+  properties (SetAccess = private)
     
-    %%%%%%%%%%%
-    % Members %
-    %%%%%%%%%%%
-    options_
-    quantities_
-    reporter_
-    status_
-    strategies_
+    options
+    quantities
+    reporter
+    status
+    strategies
     
-  end
+  end % properties (private set access)
   
   % Methods (public access)
   methods (Access = public)
@@ -50,16 +47,16 @@ classdef TRACE < handle
     function T = TRACE
       
       % Set options
-      T.options_ = Options;
+      T.options = Options;
       
       % Set quantities
-      T.quantities_ = Quantities;
+      T.quantities = Quantities;
       
       % Set reporter
-      T.reporter_ = Reporter;
+      T.reporter = Reporter;
       
       % Set strategies
-      T.strategies_ = Strategies;
+      T.strategies = Strategies;
       
       % Add options
       T.addOptions;
@@ -81,27 +78,11 @@ classdef TRACE < handle
     function [x,f,stationarity_error] = finalIterate(T)
       
       % Set return values
-      x = T.quantities_.currentIterate.point;
-      f = T.quantities_.currentIterate.objectiveFunction(T.quantities_);
-      stationarity_error = T.quantities_.currentIterate.stationarityError(T.quantities_);
+      x = T.quantities.currentIterate.point;
+      f = T.quantities.currentIterate.objectiveFunction(T.quantities);
+      stationarity_error = T.quantities_.currentIterate.stationarityError(T.quantities);
       
     end % finalIterate
-    
-    % Options
-    function o = options(T)
-      
-      % Set return value
-      o = T.options_;
-      
-    end % options
-    
-    % Reporter
-    function r = reporter(T)
-      
-      % Set return value
-      r = T.reporter_;
-      
-    end % reporter
     
   end % methods (public access)
   

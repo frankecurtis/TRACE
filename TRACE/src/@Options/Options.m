@@ -5,15 +5,15 @@
 % Options class
 classdef Options < handle
   
-  % Properties (private access)
-  properties (SetAccess = private, GetAccess = private)
+  % Properties (private get and set access)
+  properties (GetAccess = private, SetAccess = private)
     
     %%%%%%%%%%%
     % MEMBERS %
     %%%%%%%%%%%
     list = {}
     
-  end
+  end % properties (private get and set access)
   
   % Methods (public access)
   methods (Access = public)
@@ -23,11 +23,7 @@ classdef Options < handle
     %%%%%%%%%%%%%%%
     
     % Constructor
-    function O = Options
-      
-      % DO NOTHING
-      
-    end % Constructor
+    function O = Options, end
     
     %%%%%%%%%%%%%%%%%
     % PRINT METHODS %

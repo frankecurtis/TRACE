@@ -6,6 +6,8 @@
 function initialize(S,options,quantities,reporter)
 
 % Initialize
-S.direction_computation_.initialize(options,quantities,reporter);
+S.acceptabilityCheck.initialize(options,quantities,reporter);
+S.stepComputation.initialize(options,quantities,reporter);
+S.subproblemSolver.initialize(options,quantities,reporter);
 
 end % initialize

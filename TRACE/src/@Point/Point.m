@@ -4,39 +4,39 @@
 
 % Point class
 classdef Point < handle
-  
-  % Properties (private access)
-  properties (SetAccess = private, GetAccess = private)
+
+  % Properties (private set access)
+  properties (SetAccess = private)
     
-    %%%%%%%%%%%
-    % Problem %
-    %%%%%%%%%%%
-    p
+    numberOfVariables
+    point
+    problem
+    scaleFactor
+    
+  end % properties (private set access)
+  
+  % Properties (private get and set access)
+  properties (GetAccess = private, SetAccess = private)
     
     %%%%%%%%%%%%%%
     % QUANTITIES %
     %%%%%%%%%%%%%%
-    n % number of variables
-    x % point
     f % objective function
     f_unscaled % objective function, unscaled
     g % objective gradient
+    g_norm2 % objective gradient, 2-norm
     H % objective Hessian
-    
-    %%%%%%%%%%%%%%%%%
-    % SCALE FACTORS %
-    %%%%%%%%%%%%%%%%%
-    f_scale
     
     %%%%%%%%%%%%%%
     % INDICATORS %
     %%%%%%%%%%%%%%
     f_evaluated = false
     g_evaluated = false
+    g_norm2_evaluated = false
     H_evaluated = false
     scales_set = false
     
-  end % properties (private access)
+  end % properties (private get and set access)
   
   % Methods (public access)
   methods (Access = public)
@@ -57,81 +57,33 @@ classdef Point < handle
       if nargin == 1
         
         % Set problem
-        P.p = varargin{1};
+        P.problem = varargin{1};
         
         % Set initial point
-        P.x = P.p.initialPoint;
+        P.point = P.problem.initialPoint;
         
         % Set number of variables
-        P.n = P.p.numberOfVariables;
+        P.numberOfVariables = P.problem.numberOfVariables;
         
         % Initialize scale factors
-        P.f_scale = 1.0;
+        P.scaleFactor = 1.0;
         
       else % point + vector input (2 arguments)
         
         % Copy members from input point
-        P.p = varargin{1}.problem;
-        P.n = varargin{1}.numberOfVariables;
-        P.f_scale = varargin{1}.scaleFactor;
+        P.problem = varargin{1}.problem;
+        P.numberOfVariables = varargin{1}.numberOfVariables;
+        P.scaleFactor = varargin{1}.scaleFactor;
         
         % Set indicator
         P.scales_set = true;
         
         % Set point
-        P.x = varargin{2};
+        P.point = varargin{2};
         
       end
       
     end % Constructor
-    
-    %%%%%%%%%%%%%%%%%%%%
-    % MAKE NEW METHODS %
-    %%%%%%%%%%%%%%%%%%%%
-    
-    % Make linear combination
-    function P = makeLinearCombination(P_curr,alpha,d)
-      
-      % Create new point
-      P = Point(P_curr,P_curr.point + alpha*d);
-      
-    end % makeLinearCombination
-    
-    %%%%%%%%%%%%%%%
-    % GET METHODS %
-    %%%%%%%%%%%%%%%
-    
-    % Number of variables
-    function n = numberOfVariables(P)
-      
-      % Set number of variables
-      n = P.n;
-      
-    end % numberOfVariables
-    
-    % Point
-    function x = point(P)
-      
-      % Set point
-      x = P.x;
-      
-    end % point
-    
-    % Problem
-    function p = problem(P)
-      
-      % Set problem
-      p = P.p;
-      
-    end % problem
-    
-    % Scale factor
-    function f_scale = scaleFactor(P)
-      
-      % Set scale factors
-      f_scale = P.f_scale;
-      
-    end % scaleFactors
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%
     % CHECK DERIVATIVE METHOD %
@@ -149,10 +101,10 @@ classdef Point < handle
       g = P.objectiveGradient(quantities);
       
       % Loop over coordinate directions
-      for j = 1:P.n
+      for j = 1:P.numberOfVariables
         
         % Set perturbation
-        perturbation = zeros(P.n,1); perturbation(j) = epsilon;
+        perturbation = zeros(P.numberOfVariables,1); perturbation(j) = epsilon;
         
         % Set trial point
         temp = Point(quantities.currentIterate,quantities.currentIterate.point + perturbation);
@@ -180,16 +132,16 @@ classdef Point < handle
       if quantities.scaleProblem
         
         % Evaluate objective gradient
-        gradient = P.p.evaluateObjectiveGradient(P.x);
+        gradient = P.problem.evaluateObjectiveGradient(P.point);
         
         % Increment counter
         quantities.incrementObjectiveGradientEvaluationCounter;
         
         % Set objective scale factor
-        P.f_scale = quantities.scaleFactorGradientLimit/max(quantities.scaleFactorGradientLimit,norm(gradient,inf));
+        P.scaleFactor = quantities.scaleFactorGradientLimit/max(quantities.scaleFactorGradientLimit,norm(gradient,inf));
         
         % Set gradient
-        P.g = P.f_scale * gradient;
+        P.g = P.scaleFactor * gradient;
         
         % Set indicator
         P.g_evaluated = true;
@@ -197,7 +149,7 @@ classdef Point < handle
       else
         
         % Set scales to 1
-        P.f_scale = 1.0;
+        P.scaleFactor = 1.0;
         
       end
       
@@ -218,7 +170,7 @@ classdef Point < handle
       if ~P.f_evaluated
         
         % Evaluate
-        [P.f_unscaled,err] = P.p.evaluateObjectiveFunction(P.x);
+        [P.f_unscaled,err] = P.problem.evaluateObjectiveFunction(P.point);
         
         % Check for error
         if err == true
@@ -226,7 +178,7 @@ classdef Point < handle
         end
         
         % Scale
-        P.f = P.f_scale * P.f_unscaled;
+        P.f = P.scaleFactor * P.f_unscaled;
         
         % Set indicator
         P.f_evaluated = true;
@@ -269,7 +221,7 @@ classdef Point < handle
       if ~P.g_evaluated
         
         % Evaluate
-        [g,err] = P.p.evaluateObjectiveGradient(P.x);
+        [g,err] = P.problem.evaluateObjectiveGradient(P.point);
         
         % Check for error
         if err == true
@@ -277,7 +229,7 @@ classdef Point < handle
         end
         
         % Scale
-        P.g = P.f_scale * g;
+        P.g = P.scaleFactor * g;
         
         % Set indicator
         P.g_evaluated = true;
@@ -292,6 +244,33 @@ classdef Point < handle
       
     end % objectiveGradient
     
+    % Objective gradient 2-norm
+    function g_norm2 = objectiveGradientNorm2(P,quantities)
+      
+      % Check if gradient already evaluated
+      if ~P.g_evaluated
+        
+        % Evaluate
+        P.objectiveGradient(quantities);
+        
+      end
+      
+      % Set objective gradient 2-norm
+      if ~P.g_norm2_evaluated
+        
+        % Evaluate
+        P.g_norm2 = norm(P.objectiveGradient(quantities));
+        
+        % Set indicator
+        P.g_norm2_evaluated = true;
+        
+      end
+      
+      % Set objective gradient norm value
+      g_norm2 = P.g_norm2;
+      
+    end
+    
     % Objective Hessian
     function H = objectiveHessian(P,quantities)
       
@@ -304,7 +283,7 @@ classdef Point < handle
       if ~P.H_evaluated
         
         % Evaluate
-        [H,err] = P.p.evaluateObjectiveHessian(P.x);
+        [H,err] = P.problem.evaluateObjectiveHessian(P.point);
         
         % Check for error
         if err == true
@@ -312,7 +291,7 @@ classdef Point < handle
         end
         
         % Scale
-        P.H = P.f_scale * H;
+        P.H = P.scaleFactor * H;
         
         % Set indicator
         P.H_evaluated = true;

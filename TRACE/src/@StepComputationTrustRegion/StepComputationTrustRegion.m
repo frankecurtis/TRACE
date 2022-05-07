@@ -2,23 +2,25 @@
 %
 % All Rights Reserved.
 
-% DirectionComputationTrustRegion class
-classdef DirectionComputationTrustRegion < DirectionComputation
-  
-  % Properties (private access)
-  properties (SetAccess = private, GetAccess = private)
+% StepComputationTrustRegion class
+classdef StepComputationTrustRegion < StepComputation
+
+  % Properties (constant)
+  properties (Constant)
     
-    %%%%%%%%
-    % NAME %
-    %%%%%%%%
-    n = 'TrustRegion'
+    name = 'TrustRegion'
+    
+  end % properties (constant)
+  
+  % Properties (private get and set access)
+  properties (GetAccess = private, SetAccess = private)
     
     %%%%%%%%%%%
     % OPTIONS %
     %%%%%%%%%%%
-    %...
+    fail_on_solver_failure_
     
-  end % properties (private access)
+  end % properties (private get and set access)
   
   % Methods (static)
   methods (Static)
@@ -40,55 +42,39 @@ classdef DirectionComputationTrustRegion < DirectionComputation
     %%%%%%%%%%%%%%%
     
     % Constructor
-    function D = DirectionComputationTrustRegion
-      
-      %...
-      
-    end % Constructor
-    
+    function S = StepComputationTrustRegion, end
+
     %%%%%%%%%%%%%%%%%
     % PRINT METHODS %
     %%%%%%%%%%%%%%%%%
     
     % Print iteration header
-    printIterationHeader(D,reporter)
+    printIterationHeader(S,reporter)
     
     % Print iteration values
-    printIterationValues(D,quantities,reporter)
+    printIterationValues(S,quantities,reporter)
     
     %%%%%%%%%%%%%%%%%%%
     % OPTIONS METHODS %
     %%%%%%%%%%%%%%%%%%%
     
     % Get options
-    getOptions(D,options,reporter)
+    getOptions(S,options,reporter)
     
     %%%%%%%%%%%%%%%%%%%%%%
     % INITIALIZE METHODS %
     %%%%%%%%%%%%%%%%%%%%%%
     
     % Initialize
-    initialize(D,options,quantities,reporter)
-    
-    %%%%%%%%%%%%%%%
-    % GET METHODS %
-    %%%%%%%%%%%%%%%
-    
-    % Name
-    function n = name(D)
-      
-      % Set return value
-      n = D.n;
-      
-    end % name
+    initialize(S,options,quantities,reporter)
     
     %%%%%%%%%%%%%%%%%%%
     % COMPUTE METHODS %
     %%%%%%%%%%%%%%%%%%%
     
-    % Compute direction
-    err = computeDirection(D,options,quantities,reporter,strategies)
+    % Compute step
+    err = computeStep(S,options,quantities,reporter,strategies)
     
   end % methods (public access)
   
-end % DirectionComputationTrustRegion
+end % StepComputationTrustRegion

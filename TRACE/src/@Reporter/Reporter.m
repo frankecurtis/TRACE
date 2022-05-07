@@ -5,15 +5,15 @@
 % Reporter class
 classdef Reporter < handle
   
-  % Properties (private access)
-  properties (SetAccess = private, GetAccess = private)
+  % Properties (private get and set access)
+  properties (GetAccess = private, SetAccess = private)
     
     %%%%%%%%%%%
     % MEMBERS %
     %%%%%%%%%%%
     list = {}
     
-  end % properties (private access)
+  end % properties (private get and set access)
   
   % Methods (public access)
   methods (Access = public)

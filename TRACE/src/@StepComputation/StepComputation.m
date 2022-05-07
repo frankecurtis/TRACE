@@ -2,8 +2,15 @@
 %
 % All Rights Reserved.
 
-% DirectionComputation class
-classdef (Abstract) DirectionComputation < Strategy
+% StepComputation class
+classdef (Abstract) StepComputation < Strategy
+  
+  % Properties (abstract, constant)
+  properties (Abstract, Constant)
+    
+    name
+    
+  end % properties (abstract, constant)
   
   % Methods (abstract, static)
   methods (Abstract, Static)
@@ -28,12 +35,9 @@ classdef (Abstract) DirectionComputation < Strategy
     % Initialize
     initialize(S,options,quantities,reporter)
     
-    % Name
-    n = name(S)
-    
-    % Compute direction
-    err = computeDirection(S,options,quantities,reporter,strategies)
+    % Compute step
+    err = computeStep(S,options,quantities,reporter,strategies)
     
   end % methods (abstract)
   
-end % DirectionComputation
+end % StepComputation

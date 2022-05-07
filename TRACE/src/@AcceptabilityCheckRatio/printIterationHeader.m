@@ -2,11 +2,11 @@
 %
 % All Rights Reserved.
 
-% Quantities: printIterationHeader
-function printIterationHeader(Q,reporter)
+% AcceptabilityCheckRatio: printIterationHeader
+function printIterationHeader(A,reporter)
 
-% Print iteration values
+% Print iteration header
 reporter.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,...
-  '  It.  In.It.   Objective    |Gradient|');
-
+  '    Act. Red.     Mod. Red.');
+  
 end % printIterationHeader

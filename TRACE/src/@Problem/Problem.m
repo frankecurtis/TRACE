@@ -4,6 +4,15 @@
 
 % Problem class
 classdef (Abstract) Problem < handle
+
+  % Properties (abstract, private set access)
+  properties (Abstract, SetAccess = private)
+    
+    initialPoint
+    name
+    numberOfVariables
+    
+  end % properties (abstract, private set access)
   
   % Methods (abstract)
   methods (Abstract)
@@ -16,15 +25,6 @@ classdef (Abstract) Problem < handle
     
     % Objective Hessian
     [H,err] = evaluateObjectiveHessian(P,x)
-    
-    % Initial point
-    x = initialPoint(P)
-    
-    % Name
-    s = name(P)
-    
-    % Number of variables
-    n = numberOfVariables(P)
     
   end % methods (abstract)
   

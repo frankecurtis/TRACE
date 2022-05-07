@@ -2,9 +2,9 @@
 %
 % All Rights Reserved.
 
-% Strategy class
-classdef (Abstract) Strategy < handle
-
+% AcceptabilityCheck class
+classdef (Abstract) AcceptabilityCheck < Strategy
+  
   % Properties (abstract, constant)
   properties (Abstract, Constant)
     
@@ -35,6 +35,9 @@ classdef (Abstract) Strategy < handle
     % Initialize
     initialize(S,options,quantities,reporter)
     
+    % Check acceptability
+    err = checkAcceptability(S,options,quantities,reporter,strategies)
+    
   end % methods (abstract)
   
-end % Strategy
+end % AcceptabilityCheck

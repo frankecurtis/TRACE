@@ -30,8 +30,17 @@ classdef Enumerations < uint8
     S_SIZE_LIMIT (3)
     S_ITERATION_LIMIT (4)
     S_EVALUATION_LIMIT (5)
-    S_DIRECTION_COMPUTATION_FAILURE (6)
-    
+    S_STEP_COMPUTATION_FAILURE (6)
+    S_ACCEPTABILITY_CHECK_FAILURE (7)
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % SUBPROBLEM SOLVER STATUSES %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    SS_UNSET (0)
+    SS_SUCCESS (1)
+    SS_SUCCESS_HARD (2)
+    SS_ITERATION_LIMIT (3)
+
   end % enumeration
   
 end % Enumerations

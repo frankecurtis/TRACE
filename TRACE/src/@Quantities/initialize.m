@@ -5,10 +5,10 @@
 % Quantities: initialize
 function initialize(Q,problem)
 
-% Set current iterate
-Q.current_iterate_ = Point(problem);
-
 % Start clock
 tic;
+
+% Set current iterate
+Q.currentIterate = Point(problem);
 
 end % initialize

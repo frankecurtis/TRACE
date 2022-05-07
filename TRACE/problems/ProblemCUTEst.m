@@ -5,17 +5,14 @@
 % ProblemCUTEst class
 classdef ProblemCUTEst < Problem
   
-  % Properties (private access)
-  properties (SetAccess = private, GetAccess = private)
+  % Properties (private set access)
+  properties (SetAccess = private)
     
-    %%%%%%%%%%%
-    % MEMBERS %
-    %%%%%%%%%%%
-    x % initial point
-    n % number of variables
-    s % name
+    initialPoint
+    name
+    numberOfVariables
     
-  end % properties (private access)
+  end % properties (private set access)
   
   % Methods (public access)
   methods (Access = public)
@@ -31,13 +28,13 @@ classdef ProblemCUTEst < Problem
       prob = cutest_setup();
       
       % Get initial point
-      P.x = prob.x;
+      P.initialPoint = prob.x;
       
       % Set number of variables
-      P.n = prob.n;
+      P.numberOfVariables = prob.n;
       
       % Set name
-      P.s = prob.name;
+      P.name = prob.name;
       
     end % Constructor
     
@@ -52,6 +49,10 @@ classdef ProblemCUTEst < Problem
       cutest_terminate;
       
     end % destructor
+    
+    %%%%%%%%%%%%%%%%%%%%
+    % EVALUATE METHODS %
+    %%%%%%%%%%%%%%%%%%%%
     
     % Objective function
     function [f,err] = evaluateObjectiveFunction(P,x)
@@ -100,31 +101,7 @@ classdef ProblemCUTEst < Problem
       end
       
     end % evaluateObjectiveHessian
-    
-    % Initial point
-    function x = initialPoint(P)
-      
-      % Set initial point
-      x = P.x;
-      
-    end % initialPoint
-    
-    % Name
-    function s = name(P)
-      
-      % Set name
-      s = P.s;
-      
-    end % name
-    
-    % Number of variables
-    function n = numberOfVariables(P)
-      
-      % Set number of variables
-      n = P.n;
-      
-    end % numberOfVariables
-    
+        
   end % methods (public access)
   
 end % ProblemCUTEst

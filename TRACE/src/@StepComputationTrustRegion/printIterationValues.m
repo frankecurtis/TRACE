@@ -2,8 +2,8 @@
 %
 % All Rights Reserved.
 
-% DirectionComputationTrustRegion: printIterationValues
-function printIterationValues(D,quantities,reporter)
+% StepComputationTrustRegion: printIterationValues
+function printIterationValues(S,quantities,reporter)
 
 % Print iteration values
 %reporter.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,...

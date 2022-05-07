@@ -6,9 +6,9 @@
 function getOptions(T)
 
 % Get options for quantities
-T.quantities_.getOptions(T.options_,T.reporter_);
+T.quantities.getOptions(T.options,T.reporter);
 
 % Get options for strategies
-T.strategies_.getOptions(T.options_,T.reporter_);
+T.strategies.getOptions(T.options,T.reporter);
 
 end % getOptions

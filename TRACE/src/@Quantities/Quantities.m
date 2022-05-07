@@ -5,45 +5,76 @@
 % Quantities class
 classdef Quantities < handle
   
-  % Properties (private access)
-  properties (SetAccess = private, GetAccess = private)
+  % Properties (private set access)
+  properties (SetAccess = private)
     
     %%%%%%%%%%%%%%%%%%%%%%%%
     % ALGORITHM QUANTITIES %
     %%%%%%%%%%%%%%%%%%%%%%%%
-    current_iterate_
-    direction_
-    trial_iterate_
+    actualReduction
+    cubicMultiplier
+    currentIterate
+    modelReduction
+    step
+    subproblemError
+    subproblemMatrix
+    subproblemMultiplier
+    subproblemStatus
+    subproblemStep
+    subproblemVector
+    subproblemVectorNorm2
+    trialIterate
+    trustRegionMultiplier
+    trustRegionRadius
     
     %%%%%%%%%%%
     % OPTIONS %
     %%%%%%%%%%%
-    check_derivatives_
+    checkDerivatives
     
     %%%%%%%%%%%%
     % COUNTERS %
     %%%%%%%%%%%%
-    iteration_counter_ = 0
-    objective_function_evaluation_counter_ = 0
-    objective_gradient_evaluation_counter_ = 0
-    objective_hessian_evaluation_counter_ = 0
+    innerIterationCounter = 0
+    innerIterationTotalCounter = 0
+    iterationCounter = 0
+    objectiveFunctionEvaluationCounter = 0
+    objectiveGradientEvaluationCounter = 0
+    objectiveHessianEvaluationCounter = 0
     
     %%%%%%%%%%%%%%
     % INDICATORS %
     %%%%%%%%%%%%%%
-    scale_problem_
+    scaleProblem
     
     %%%%%%%%%%%%%%
     % TOLERANCES %
     %%%%%%%%%%%%%%
-    cpu_time_limit_
-    iteration_limit_
-    objective_function_evaluation_limit_
-    objective_gradient_evaluation_limit_
-    objective_hessian_evaluation_limit_
-    scale_factor_gradient_limit_
-    size_limit_
-    stationarity_tolerance_
+    cpuTimeLimit
+    innerIterationLimit
+    iterationLimit
+    objectiveFunctionEvaluationLimit
+    objectiveGradientEvaluationLimit
+    objectiveHessianEvaluationLimit
+    scaleFactorGradientLimit
+    sizeLimit
+    stationarityTolerance
+    
+  end % properties (private set access)
+  
+  % Properties (private get and set access)
+  properties (GetAccess = private, SetAccess = private)
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%
+    % ALGORITHM QUANTITIES %
+    %%%%%%%%%%%%%%%%%%%%%%%%
+    cubic_multiplier_initial_factor_
+    cubic_multiplier_initial_maximum_
+    cubic_multiplier_initial_minimum_
+    initial_stationarity_error_
+    trust_region_initial_factor_
+    trust_region_initial_maximum_
+    trust_region_initial_minimum_
     
   end
   
@@ -62,7 +93,7 @@ classdef Quantities < handle
     %%%%%%%%%%%%%%%
     
     % CPU time
-    function cpu = CPUTime
+    function cpu = cpuTime
       
       % Set return value
       cpu = toc;
@@ -79,11 +110,7 @@ classdef Quantities < handle
     %%%%%%%%%%%%%%%
     
     % Constructor
-    function Q = Quantities(varargin)
-      
-      % DO NOTHING
-      
-    end % Constructor
+    function Q = Quantities(varargin), end
     
     %%%%%%%%%%%%%%%%%
     % PRINT METHODS %
@@ -109,225 +136,222 @@ classdef Quantities < handle
     % Initialize
     initialize(Q,problem)
     
-    %%%%%%%%%%%%%%%
-    % GET METHODS %
-    %%%%%%%%%%%%%%%
+    % Initialize parameters
+    initializeParameters(Q)
+        
+    %%%%%%%%%%%%%%%%%
+    % Check METHODS %
+    %%%%%%%%%%%%%%%%%
     
-    % Check derivatives
-    function b = checkDerivatives(Q)
-      
-      % Set return value
-      b = Q.check_derivatives_;
-      
-    end % checkDerivatives
-    
-    % CPU time limit
-    function cpu_max = CPUTimeLimit(Q)
-      
-      % Set return value
-      cpu_max = Q.cpu_time_limit_;
-      
-    end % CPUTimeLimit
-    
-    % Current iterate
-    function iterate = currentIterate(Q)
-      
-      % Set return value
-      iterate = Q.current_iterate_;
-      
-    end % currentIterate
-    
-    % Direction
-    function d = direction(Q)
-      
-      % Set return value
-      d = Q.direction_;
-      
-    end % direction
-    
-    % Iteration counter
-    function k = iterationCounter(Q)
-      
-      % Set return value
-      k = Q.iteration_counter_;
-      
-    end % iterationCounter
-    
-    % Iteration limit
-    function k_max = iterationLimit(Q)
-      
-      % Set return value
-      k_max = Q.iteration_limit_;
-      
-    end % iterationLimit
-    
-    % Exceeded limit, CPU
+    % Check exceeded limit, CPU
     function b = limitExceededCPU(Q)
       
       % Check limit
-      b = (Q.CPUTime >= Q.cpu_time_limit_);
+      b = (Q.cpuTime >= Q.cpuTimeLimit);
       
     end % limitExceededCPU
     
-    % Exceeded limit, evaluations
+    % Check exceeded limit, evaluations
     function b = limitExceededEvaluations(Q)
       
       % Check limit
-      b = (Q.objective_function_evaluation_counter_ > Q.objective_function_evaluation_limit_ || ...
-        Q.objective_gradient_evaluation_counter_ > Q.objective_gradient_evaluation_limit_ || ...
-        Q.objective_hessian_evaluation_counter_ > Q.objective_hessian_evaluation_limit_);
+      b = (Q.objectiveFunctionEvaluationCounter > Q.objectiveFunctionEvaluationLimit || ...
+        Q.objectiveGradientEvaluationCounter > Q.objectiveGradientEvaluationLimit || ...
+        Q.objectiveHessianEvaluationCounter > Q.objectiveHessianEvaluationLimit);
       
     end % limitExceededEvaluations
     
-    % Exceeded limit, iterations
+    % Check exceeded limit, iterations
     function b = limitExceededIterations(Q)
       
       % Check limit
-      b = (Q.iteration_counter_ > Q.iteration_limit_);
+      b = (Q.innerIterationTotalCounter > Q.innerIterationLimit || ...
+        Q.iterationCounter > Q.iterationLimit);
       
     end % limitExceededIterations
     
-    % Exceeded limit, size
+    % Check exceeded limit, size
     function b = limitExceededSize(Q)
       
       % Check limit
-      b = (Q.current_iterate_.numberOfVariables > Q.size_limit_);
+      b = (Q.currentIterate.numberOfVariables > Q.sizeLimit);
       
     end % limitExceededSize
     
-    % Objective function evaluation counter
-    function f = objectiveFunctionEvaluationCounter(Q)
-      
-      % Set return value
-      f = Q.objective_function_evaluation_counter_;
-      
-    end % objectiveFunctionEvaluationCounter
-    
-    % Objective function evaluation limit
-    function f_max = objectiveFunctionEvaluationLimit(Q)
-      
-      % Set return value
-      f_max = Q.objective_function_evaluation_limit_;
-      
-    end % objectiveFunctionEvaluationLimit
-    
-    % Objective gradient evaluation counter
-    function g = objectiveGradientEvaluationCounter(Q)
-      
-      % Set return value
-      g = Q.objective_gradient_evaluation_counter_;
-      
-    end % objectiveGradientEvaluationCounter
-    
-    % Objective gradient evaluation limit
-    function g_max = objectiveGradientEvaluationLimit(Q)
-      
-      % Set return value
-      g_max = Q.objective_gradient_evaluation_limit_;
-      
-    end % objectiveGradientEvaluationLimit
-    
-    % Objective Hessian evaluation counter
-    function H = objectiveHessianEvaluationCounter(Q)
-      
-      % Set return value
-      H = Q.objective_hessian_evaluation_counter_;
-      
-    end % objectiveHessianEvaluationCounter
-    
-    % Objective Hessian evaluation limit
-    function H_max = objectiveHessianEvaluationLimit(Q)
-      
-      % Set return value
-      H_max = Q.objective_hessian_evaluation_limit_;
-      
-    end % objectiveHessianEvaluationLimit
-    
-    % Scale factor gradient limit
-    function s_max = scaleFactorGradientLimit(Q)
-      
-      % Set return value
-      s_max = Q.scale_factor_gradient_limit_;
-      
-    end % scaleFactorGradientLimit
-    
-    % Scale problem
-    function b = scaleProblem(Q)
-      
-      % Set return value
-      b = Q.scale_problem_;
-      
-    end % scaleProblem
-    
-    % Size limit
-    function s_max = sizeLimit(Q)
-      
-      % Set return value
-      s_max = Q.size_limit_;
-      
-    end % sizeLimit
-    
-    % Stationarity satisfied
+    % Check stationarity satisfied
     function b = stationaritySatisfied(Q)
       
       % Check condition
-      b = (Q.current_iterate_.stationarityError(Q) <= Q.stationarity_tolerance_);
+      b = (Q.currentIterate.stationarityError(Q) <= max(1,Q.initial_stationarity_error_) * Q.stationarityTolerance);
       
     end % stationaritySatisfied
-    
-    % Stationarity tolerance
-    function t = stationarityTolerance(Q)
-      
-      % Set return value
-      t = Q.stationarity_tolerance_;
-      
-    end % stationarityTolerance
-    
-    % Trial iterate
-    function iterate = trialIterate(Q)
-      
-      % Set return value
-      iterate = Q.trial_iterate_;
-      
-    end % trialIterate
     
     %%%%%%%%%%%%%%%
     % SET METHODS %
     %%%%%%%%%%%%%%%
     
-    % Set direction
-    function setDirection(Q,direction)
+    % Set actual reduction
+    function setActualReduction(Q,actualReduction)
       
-      % Set direction
-      Q.direction_ = direction;
+      % Set actual reduction
+      Q.actualReduction = actualReduction;
       
-    end % setDirection
+    end % setActualReduction
+    
+    % Set cubic multiplier
+    function setCubicMultiplier(Q,cubicMultiplier)
+      
+      % Set cubic multiplier
+      Q.cubicMultiplier = cubicMultiplier;
+      
+    end % setCubicMultiplier
+    
+    % Set model reduction
+    function setModelReduction(Q,modelReduction)
+      
+      % Set model reduction
+      Q.modelReduction = modelReduction;
+      
+    end % setModelReduction
+    
+    % Set step
+    function setStep(Q,step)
+      
+      % Set step
+      Q.step = step;
+      
+    end % setStep
+    
+    % Set subproblem error
+    function setSubproblemError(Q,error)
+      
+      % Set subproblem error
+      Q.subproblemError = error;
+      
+    end % setSubproblemError
+    
+    % Set subproblem matrix
+    function setSubproblemMatrix(Q,matrix)
+      
+      % Set subproblem matrix
+      Q.subproblemMatrix = matrix;
+      
+    end % setSubproblemMatrix
+    
+    % Set subproblem multiplier
+    function setSubproblemMultiplier(Q,multiplier)
+      
+      % Set subproblem multiplier
+      Q.subproblemMultiplier = multiplier;
+      
+    end % setsubproblemMultiplier
+    
+    % Set subproblem status
+    function setSubproblemStatus(Q,status)
+      
+      % Set subproblem status
+      Q.subproblemStatus = status;
+      
+    end % setSubproblemStatus
+    
+    % Set subproblem step
+    function setSubproblemStep(Q,step)
+      
+      % Set subproblem step
+      Q.subproblemStep = step;
+      
+    end % setSubproblemStep
+    
+    % Set subproblem vector
+    function setSubproblemVector(Q,vector)
+      
+      % Set subproblem vector
+      Q.subproblemVector = vector;
+      
+      % Set subproblem vector 2-norm
+      Q.subproblemVectorNorm2 = norm(vector);
+      
+    end % setSubproblemVector
     
     % Set trial iterate
     function setTrialIterate(Q,iterate)
       
       % Set trial iterate
-      Q.trial_iterate_ = iterate;
+      Q.trialIterate = iterate;
       
     end % setTrialIterate
+    
+    % Set trust region multiplier
+    function setTrustRegionMultiplier(Q,multiplier)
+      
+      % Set trust region multiplier
+      Q.trustRegionMultiplier = multiplier;
+      
+    end % setTrustRegionMultiplier
+    
+    % Set trust region radius
+    function setTrustRegionRadius(Q,radius)
+      
+      % Set trust region radius
+      Q.trustRegionRadius = radius;
+      
+    end % setTrustRegionRadius
+    
+    % Update cubic multiplier
+    function updateCubicMultiplier(Q,factor)
+      
+      % Multiply by factor
+      Q.cubicMultiplier = Q.cubicMultiplier * factor;
+      
+    end % updateCubicMultiplier
     
     % Update iterate
     function updateIterate(Q)
       
       % Set current iterate to trial iterate
-      Q.current_iterate_ = Q.trial_iterate_;
+      Q.currentIterate = Q.trialIterate;
       
     end % updateIterate
+    
+    % Update trust region multiplier
+    function updateTrustRegionMultiplier(Q,factor)
+      
+      % Multiply by factor
+      Q.trustRegionMultiplier = Q.trustRegionMultiplier * factor;
+      
+    end % updateTrustRegionMultiplier
+    
+    % Update trust region radius
+    function updateTrustRegionRadius(Q,factor)
+      
+      % Multiply by factor
+      Q.trustRegionRadius = Q.trustRegionRadius * factor;
+      
+    end % updateTrustRegionRadius
     
     %%%%%%%%%%%%%%%%%%%%%
     % INCREMENT METHODS %
     %%%%%%%%%%%%%%%%%%%%%
     
+    % Increment inner iteration counter
+    function incrementInnerIterationCounter(Q)
+      
+      % Increment inner iteration counter
+      Q.innerIterationCounter = Q.innerIterationCounter + 1;
+      
+    end % incrementInnerIterationCounter
+    
     % Increment iteration counter
     function incrementIterationCounter(Q)
       
       % Increment iteration counter
-      Q.iteration_counter_ = Q.iteration_counter_ + 1;
+      Q.iterationCounter = Q.iterationCounter + 1;
+      
+      % Increment total inner iteration counter
+      Q.innerIterationTotalCounter = Q.innerIterationTotalCounter + Q.innerIterationCounter + 1;
+      
+      % Reset inner iteration counter
+      Q.innerIterationCounter = 0;
       
     end % incrementIterationCounter
     
@@ -335,7 +359,7 @@ classdef Quantities < handle
     function incrementObjectiveFunctionEvaluationCounter(Q)
       
       % Increment objective function evaluation counter
-      Q.objective_function_evaluation_counter_ = Q.objective_function_evaluation_counter_ + 1;
+      Q.objectiveFunctionEvaluationCounter = Q.objectiveFunctionEvaluationCounter + 1;
       
     end % incrementObjectiveFunctionEvaluationCounter
     
@@ -343,7 +367,7 @@ classdef Quantities < handle
     function incrementObjectiveGradientEvaluationCounter(Q)
       
       % Increment objective gradient evaluation counter
-      Q.objective_gradient_evaluation_counter_ = Q.objective_gradient_evaluation_counter_ + 1;
+      Q.objectiveGradientEvaluationCounter = Q.objectiveGradientEvaluationCounter + 1;
       
     end % incrementObjectiveGradientEvaluationCounter
     
@@ -351,7 +375,7 @@ classdef Quantities < handle
     function incrementObjectiveHessianEvaluationCounter(Q)
       
       % Increment objective Hessian evaluation counter
-      Q.objective_hessian_evaluation_counter_ = Q.objective_hessian_evaluation_counter_ + 1;
+      Q.objectiveHessianEvaluationCounter = Q.objectiveHessianEvaluationCounter + 1;
       
     end % incrementObjectiveHessianEvaluationCounter
     

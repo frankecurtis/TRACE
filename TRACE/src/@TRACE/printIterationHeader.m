@@ -6,10 +6,10 @@
 function printIterationHeader(T)
 
 % Print iteration header
-if mod(T.quantities_.iterationCounter,20) == 0
-  T.quantities_.printIterationHeader(T.reporter_);
-  T.strategies_.printIterationHeader(T.reporter_);
-  T.reporter_.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,'\n');
+if mod(T.quantities.iterationCounter,20) == 0
+  T.quantities.printIterationHeader(T.reporter);
+  T.strategies.printIterationHeader(T.reporter);
+  T.reporter.printf(Enumerations.R_SOLVER,Enumerations.R_PER_ITERATION,'\n');
 end
 
 end % printIterationHeader

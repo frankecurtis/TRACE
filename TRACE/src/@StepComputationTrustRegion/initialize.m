@@ -2,8 +2,8 @@
 %
 % All Rights Reserved.
 
-% DirectionComputationTrustRegion: initialize
-function initialize(D,options,quantities,reporter)
+% StepComputationTrustRegion: initialize
+function initialize(S,options,quantities,reporter)
 
 % Initialize
 %...

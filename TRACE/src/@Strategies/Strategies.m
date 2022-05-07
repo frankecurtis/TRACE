@@ -5,15 +5,14 @@
 % Strategies class
 classdef Strategies < handle
   
-  % Properties (private access)
-  properties (SetAccess = private, GetAccess = private)
+  % Properties (private set access)
+  properties (SetAccess = private)
     
-    %%%%%%%%%%%
-    % MEMBERS %
-    %%%%%%%%%%%
-    direction_computation_
+    acceptabilityCheck
+    stepComputation
+    subproblemSolver
     
-  end
+  end % properties (private set access)
   
   % Methods (static)
   methods (Static)
@@ -31,12 +30,8 @@ classdef Strategies < handle
   methods (Access = public)
     
     % Constructor
-    function S = Strategies
-      
-      % DO NOTHING
-      
-    end % Constructor
-    
+    function S = Strategies, end
+
     %%%%%%%%%%%%%%%%%
     % PRINT METHODS %
     %%%%%%%%%%%%%%%%%
@@ -57,18 +52,6 @@ classdef Strategies < handle
     
     % Initialize
     initialize(S,options,quantities,reporter)
-    
-    %%%%%%%%%%%%%%%
-    % GET METHODS %
-    %%%%%%%%%%%%%%%
-    
-    % Direction computation
-    function d = directionComputation(S)
-      
-      % Set return value
-      d = S.direction_computation_;
-      
-    end % directionComputation
     
   end % methods (public access)
   

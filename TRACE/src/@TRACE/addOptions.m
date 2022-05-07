@@ -6,9 +6,9 @@
 function addOptions(T)
 
 % Add options from quantities
-T.quantities_.addOptions(T.options_,T.reporter_);
+T.quantities.addOptions(T.options,T.reporter);
 
 % Add options from strategies
-T.strategies_.addOptions(T.options_,T.reporter_);
+T.strategies.addOptions(T.options,T.reporter);
 
 end % addOptions

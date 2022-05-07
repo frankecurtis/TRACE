@@ -4,7 +4,16 @@
 
 % ProblemSimple class
 classdef ProblemSimple < Problem
-  
+
+  % Properties (private set access)
+  properties (SetAccess = private)
+    
+    initialPoint      = [4;2]
+    name              = 'Simple'
+    numberOfVariables = 2
+    
+  end % properties (private set access)
+
   % Methods (public access)
   methods (Access = public)
     
@@ -13,12 +22,12 @@ classdef ProblemSimple < Problem
     %%%%%%%%%%%%%%%
     
     % Constructor
-    function P = ProblemSimple
-      
-      % DO NOTHING
-      
-    end % Constructor
+    function P = ProblemSimple, end
     
+    %%%%%%%%%%%%%%%%%%%%
+    % EVALUATE METHODS %
+    %%%%%%%%%%%%%%%%%%%%
+
     % Objective function
     function [f,err] = evaluateObjectiveFunction(P,x)
       
@@ -51,30 +60,6 @@ classdef ProblemSimple < Problem
       err = false;
       
     end % evaluateObjectiveHessian
-    
-    % Initial point
-    function x = initialPoint(P)
-      
-      % Set initial point
-      x = [4; 2];
-      
-    end % initialPoint
-    
-    % Name
-    function s = name(P)
-      
-      % Set name
-      s = 'Simple';
-      
-    end % name
-    
-    % Number of variables
-    function n = numberOfVariables(P)
-      
-      % Set number of variables
-      n = 2;
-      
-    end % numberOfVariables
     
   end % methods (public access)
   
